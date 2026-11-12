@@ -60,7 +60,7 @@ dsh plugin --profile desktop remove dsh-nextline
     enabled: true
     historyEnabled: true
     historyDays: 30
-    historySessionLimit: 30
+    historySessionLimit: 10
     timeoutMs: 15000
     maxSuggestionChars: 240
     provider: ''
@@ -69,7 +69,7 @@ dsh plugin --profile desktop remove dsh-nextline
 
 `historyEnabled: false` 只使用当前对话；`enabled: false` 停止生成。`provider` / `model` 同时填写才生效，不需要 API key。
 
-每个完成轮次最多一次额外请求，输出上限 384 tokens，总超时 15 秒；历史检索单独限制 5 秒。
+每个完成轮次最多一次额外请求，输出上限 192 tokens，总超时 15 秒；历史检索最多 1.5 秒，并优先使用最近会话。
 
 ## 数据与隐私
 

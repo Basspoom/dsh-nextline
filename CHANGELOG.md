@@ -17,7 +17,7 @@ First installable release.
 ### Fixed
 
 - Resolve `@deepseek-ai/dsh-session` and `@deepseek-ai/dsh-llm` from the running DSH installation. A linked package's bundled runtime copy passed a different `Session` class to `appendPluginRecord` and was rejected by the host.
-- Bound cross-session history retrieval to five seconds so a large corpus cannot consume the whole suggestion budget; generation continues with the rows already read.
+- Made suggestions faster: warm and cache the session list, read history in parallel with a 1.5-second cap and a 10-session default, tighten the prompt and context, and cap output at 192 tokens.
 - Keep the package installable from Git: `lib/client.js` is committed, `prepare` rebuilds it, and `zod` / `@deepseek-ai/schemastery` are declared dependencies.
 
 ### Verified

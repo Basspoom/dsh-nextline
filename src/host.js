@@ -11,15 +11,27 @@ export async function start(ctx, config, api) {
     }
   }
   const life = new AbortController(), active = new Map(), cache = new Map(), pending = new Set();
+  let sessionList = { at: 0, rows: [] };
   ctx.effect(() => async () => {
     life.abort();
     for (const job of active.values()) job.abort();
     await Promise.allSettled([...pending]);
     cache.clear();
+    sessionList = { at: 0, rows: [] };
   });
   await ctx.sessionProjections.register({ key: 'nextline', stateVersion: 1,
     stateSchema: api.schema, init: () => null, apply: reduceSuggestion,
     wire: { viewSchema: api.schema, view: state => state } });
+
+  async function recentSessions(signal) {
+    if (Date.now() - sessionList.at < 60000) return sessionList.rows;
+    const rows = await ctx.sessionQuery.listSessions(signal);
+    sessionList = { at: Date.now(), rows };
+    return rows;
+  }
+  // Warm the session list while the user reads the reply; listing thousands of
+  // sessions is one of the slowest parts of the first suggestion.
+  if (config.historyEnabled) recentSessions(life.signal).catch(() => {});
 
   async function read(id, signal) {
     const lease = await ctx.sessionQuery.observeSession(id, { signal, projectionMode: 'none' });
@@ -28,39 +40,39 @@ export async function start(ctx, config, api) {
   }
   async function history(session, signal) {
     if (!config.historyEnabled) return [];
-    // Cross-session retrieval is optional context. Bound it so a slow corpus never
-    // consumes the suggestion's whole budget; partial rows are still useful.
+    // Optional context: spend at most 1.5s and keep whatever finished. Reads run
+    // in parallel so one cold session cannot block the whole suggestion.
     const budget = new AbortController();
     const timer = setTimeout(() => budget.abort(new Error('history budget')),
-      Math.max(1000, Math.min(5000, config.timeoutMs - 2000)));
+      Math.max(800, Math.min(1500, config.timeoutMs - 2500)));
     const bounded = AbortSignal.any([signal, budget.signal]);
     try {
       let listed;
       try {
-        listed = await ctx.sessionQuery.listSessions(bounded);
+        listed = await recentSessions(bounded);
       } catch (error) {
         if (signal.aborted) throw error;
-        return [];
+        listed = sessionList.rows;
       }
       const candidates = listed.filter(r => r.header.id !== session.id && r.header.origin !== 'subagent')
         .toSorted((a, b) => Number(b.live) - Number(a.live)).slice(0, config.historySessionLimit);
       const allowed = new Set(candidates.map(r => r.header.id));
       for (const id of cache.keys()) if (!allowed.has(id)) cache.delete(id);
-      const result = [];
-      for (const record of candidates) {
-        if (bounded.aborted) break;
+      const settled = await Promise.allSettled(candidates.map(async record => {
         const id = record.header.id, old = cache.get(id);
-        try {
-          const cached = old && !record.live && Date.now() - old.at < 300000;
-          const rows = cached ? old.rows : await read(id, bounded);
-          const human = rows.filter(m => m.role === 'user').slice(-40);
-          cache.set(id, { at: cached ? old.at : Date.now(), rows: human });
-          result.push(...human);
-        } catch (error) {
-          if (signal.aborted) throw error;
-          if (bounded.aborted) break;
-          // A missing/corrupt history must not stop the current suggestion.
+        const cached = old && !record.live && Date.now() - old.at < 300000;
+        if (cached) return { id, at: old.at, rows: old.rows };
+        const rows = await read(id, bounded);
+        return { id, at: Date.now(), rows: rows.filter(m => m.role === 'user').slice(-40) };
+      }));
+      const result = [];
+      for (const item of settled) {
+        if (item.status !== 'fulfilled') {
+          if (signal.aborted) throw item.reason;
+          continue;
         }
+        cache.set(item.value.id, { at: item.value.at, rows: item.value.rows });
+        result.push(...item.value.rows);
       }
       return result;
     } finally {
@@ -76,7 +88,7 @@ export async function start(ctx, config, api) {
     if (!provider || !model) return;
     const histories = await history(session, signal);
     const input = makeInput(current, histories, Date.now(), config.historyDays);
-    const call = await ctx.llm.prepareCall({ provider, model, maxTokens: 384 }, signal,
+    const call = await ctx.llm.prepareCall({ provider, model, maxTokens: 192 }, signal,
       (controls, info) => ({ ...controls, ...(info.reasoning?.efforts?.[0]?.id === undefined ? {} :
         { reasoningEffort: info.reasoning.efforts[0].id }) }));
     signal.throwIfAborted();

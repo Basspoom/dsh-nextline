@@ -60,7 +60,7 @@ Change it under **Settings → Plugins → NextLine**, or add to the profile's `
     enabled: true
     historyEnabled: true
     historyDays: 30
-    historySessionLimit: 30
+    historySessionLimit: 10
     timeoutMs: 15000
     maxSuggestionChars: 240
     provider: ''
@@ -69,7 +69,7 @@ Change it under **Settings → Plugins → NextLine**, or add to the profile's `
 
 `historyEnabled: false` uses only the current conversation; `enabled: false` stops generation. Set `provider` and `model` together to use another route; no API key is stored.
 
-At most one extra request per completed turn, 384 output tokens, 15-second total timeout; cross-session history is separately capped at five seconds.
+At most one extra request per completed turn, 192 output tokens, 15-second total timeout; cross-session history is capped at 1.5 seconds and prefers recent sessions.
 
 ## Privacy and cost
 

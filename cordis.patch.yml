@@ -5,6 +5,6 @@
         enabled: true
         historyEnabled: true
         historyDays: 30
-        historySessionLimit: 30
+        historySessionLimit: 10
         timeoutMs: 15000
         maxSuggestionChars: 240

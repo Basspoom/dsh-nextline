@@ -12,7 +12,7 @@ export const Config = z.object({
   enabled: z.boolean().default(true),
   historyEnabled: z.boolean().default(true),
   historyDays: z.natural().min(1).max(365).default(30),
-  historySessionLimit: z.natural().min(1).max(100).default(30),
+  historySessionLimit: z.natural().min(1).max(100).default(10),
   timeoutMs: z.natural().min(1000).max(60000).default(15000),
   maxSuggestionChars: z.natural().min(20).max(240).default(240),
   provider: z.string().default(''),
