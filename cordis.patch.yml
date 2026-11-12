@@ -1,0 +1,10 @@
+- insert:
+    - id: nextline
+      name: dsh-nextline
+      config:
+        enabled: true
+        historyEnabled: true
+        historyDays: 30
+        historySessionLimit: 30
+        timeoutMs: 15000
+        maxSuggestionChars: 240

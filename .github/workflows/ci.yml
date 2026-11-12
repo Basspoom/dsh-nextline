@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Unit tests
+        run: npm test
+      - name: Rebuild client bundle
+        run: node scripts/build.mjs
+      - name: Verify the committed client bundle
+        run: git diff --exit-code -- lib/client.js
+      - name: Verify package contents
+        run: npm pack --dry-run
