@@ -59,7 +59,7 @@ git push -u origin main --tags
 Use a profile you can reset (or remove the plugin afterwards):
 
 ```powershell
-dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#vX.Y.Z"
+dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/vX.Y.Z.tar.gz"
 ```
 
 Then in DSH:
@@ -69,7 +69,7 @@ Then in DSH:
 3. Check Tab, →, editing before send, Esc, direct typing, session switching, Chinese IME, and disabling the plugin.
 4. Uninstall and confirm the ghost layer and listeners are gone.
 
-A Git install runs `prepare`, which rebuilds `lib/client.js`. The committed bundle also supports installs with `--ignore-scripts`.
+The tagged archive uses the committed `lib/client.js`. With pnpm 11, Git shorthand requires an `allowBuilds` entry to run `prepare`.
 
 ## 6. GitHub release
 

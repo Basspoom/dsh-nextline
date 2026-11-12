@@ -23,13 +23,13 @@
 从 GitHub：
 
 ```powershell
-dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#v0.1.1"
+dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.1.tar.gz"
 ```
 
 或在 **插件** 页面选择 **添加插件**，粘贴：
 
 ```text
-github:Basspoom/dsh-nextline#v0.1.1
+https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.1.tar.gz
 ```
 
 从本地目录：

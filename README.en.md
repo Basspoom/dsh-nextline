@@ -22,13 +22,13 @@ Requires DSH Desktop / Web `0.2.2-rc.2` through `0.3.0` (exclusive). The termina
 From GitHub:
 
 ```powershell
-dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#v0.1.1"
+dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.1.tar.gz"
 ```
 
 Or open **Plugins → Add plugin** and enter:
 
 ```text
-github:Basspoom/dsh-nextline#v0.1.1
+https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.1.tar.gz
 ```
 
 From a local checkout:
