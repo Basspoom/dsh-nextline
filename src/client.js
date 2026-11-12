@@ -5,8 +5,11 @@ export function attachGhost(shell, session, source, doc = document) {
   let root, ghost, style, resize, previousMinHeight, originalDescription;
   let composing = false, suppressed = false, disposed = false;
   let wasRunning = Boolean(session.getSnapshot().running), visible = '';
+  let acceptedTurn = null, acceptedDraft = false, acceptedPending = false;
+  let dismissedTurn = null;
   const owner = `nextline-${Math.random().toString(36).slice(2)}`;
   const consumed = new Set();
+  const isBlank = value => String(value ?? '').replace(/[\u200b\u200c\u200d\ufeff]/g, '').trim() === '';
   const remember = value => { consumed.add(value); if (consumed.size > 32) consumed.delete(consumed.values().next().value); };
   function removeSurface() {
     if (root?.getAttribute('data-nextline-owner') === owner) {
@@ -18,7 +21,7 @@ export function attachGhost(shell, session, source, doc = document) {
         else root.setAttribute('aria-describedby', originalDescription);
       }
       root.removeEventListener('keydown', keydown, true);
-      root.removeEventListener('beforeinput', dismiss, true);
+      root.removeEventListener('beforeinput', beforeInput, true);
       root.removeEventListener('compositionstart', compositionStart, true);
       root.removeEventListener('compositionend', compositionEnd, true);
     }
@@ -26,14 +29,29 @@ export function attachGhost(shell, session, source, doc = document) {
     ghost = style = resize = undefined;
     visible = '';
   }
-  function dismiss() { suppressed = true; paint(); }
-  function compositionStart() { composing = true; dismiss(); }
+  function dismiss() {
+    dismissedTurn = source.getSnapshot()?.turnSeq ?? dismissedTurn;
+    suppressed = true;
+    paint();
+  }
+  function beforeInput() {
+    const input = shell.state.getSnapshot();
+    // The composer inserts a zero-width space in an empty editor. Keep the
+    // accepted suggestion visible until the user actually types real text.
+    if (!(isBlank(input?.draft) && acceptedTurn !== null)) suppressed = true;
+    paint();
+  }
+  function compositionStart() { composing = true; suppressed = true; paint(); }
   function compositionEnd() { composing = false; paint(); }
   function allowed() {
     const state = session.getSnapshot(), input = shell.state.getSnapshot(), hint = source.getSnapshot();
+    const blank = isBlank(input?.draft);
+    const restored = acceptedTurn !== null && hint?.turnSeq === acceptedTurn && blank && !state.running;
+    const phaseOk = input?.phase === 'plain' || (restored && input?.phase === 'claimed');
     if (disposed || !root?.isConnected || !root.isContentEditable || state.running || state.removed ||
-        composing || suppressed || input?.draft !== '' || input.phase !== 'plain' ||
+        composing || suppressed || !phaseOk || !blank ||
         input.attachmentIds?.length || input.queue?.length || !hint?.text ||
+        hint.turnSeq === dismissedTurn ||
         Date.now() - hint.createdAt > 300000 || consumed.has(hint.turnSeq)) return '';
     return hint.text;
   }
@@ -51,10 +69,28 @@ export function attachGhost(shell, session, source, doc = document) {
   function paint() {
     if (disposed) return;
     const running = Boolean(session.getSnapshot().running);
-    if (running && !wasRunning) suppressed = false;
+    if (running && !wasRunning) {
+      suppressed = false;
+      // The accepted draft was sent, so it must not reappear as a ghost.
+      acceptedTurn = null;
+      acceptedDraft = false;
+      acceptedPending = false;
+    }
     wasRunning = running;
-    const input = shell.state.getSnapshot();
-    if (!running && input?.draft) suppressed = true;
+    const input = shell.state.getSnapshot(), hint = source.getSnapshot();
+    const blank = isBlank(input?.draft);
+    if (!running && !blank) suppressed = true;
+    else if (!running && blank && !composing) suppressed = false;
+    if (acceptedPending && hint?.turnSeq === acceptedTurn && !blank) {
+      acceptedPending = false;
+      acceptedDraft = true;
+    }
+    if (!running && acceptedDraft && hint?.turnSeq === acceptedTurn &&
+        (input?.phase === 'plain' || input?.phase === 'claimed') && blank) {
+      acceptedDraft = false;
+      suppressed = false;
+      consumed.delete(acceptedTurn);
+    }
     visible = allowed();
     if (!ghost) return;
     ghost.textContent = visible;
@@ -71,9 +107,13 @@ export function attachGhost(shell, session, source, doc = document) {
     if (selection && !selection.isCollapsed) return;
     const text = visible, turn = source.getSnapshot().turnSeq;
     event.preventDefault(); event.stopImmediatePropagation();
-    remember(turn); suppressed = true; paint();
+    remember(turn); suppressed = true;
+    acceptedTurn = turn; acceptedPending = true; acceptedDraft = false;
+    paint();
     shell.actions.setDraft(text);
     shell.actions.persistDraft?.();
+    acceptedPending = false;
+    acceptedDraft = true;
     shell.focus?.();
   }
   const offRoot = shell.editor.registerRootListener(next => {
@@ -94,15 +134,15 @@ export function attachGhost(shell, session, source, doc = document) {
     style.textContent = `[data-nextline-owner="${owner}"][data-nextline-visible] ~ [data-composer-placeholder] { visibility: hidden; }`;
     parent.append(style, ghost);
     root.addEventListener('keydown', keydown, true);
-    root.addEventListener('beforeinput', dismiss, true);
+    root.addEventListener('beforeinput', beforeInput, true);
     root.addEventListener('compositionstart', compositionStart, true);
     root.addEventListener('compositionend', compositionEnd, true);
     resize = new doc.defaultView.ResizeObserver(layout); resize.observe(root);
     paint();
   });
   const stops = [offRoot, shell.state.subscribe(paint), session.subscribe(paint), source.subscribe(paint)];
-  // Expire an idle hint without relying on another session event.
-  const timer = setInterval(paint, 15000);
+  // Expire an idle hint and recover a missed draft-clear notification.
+  const timer = setInterval(paint, 1000);
   paint();
   return () => { disposed = true; clearInterval(timer); for (const stop of stops) stop(); removeSurface(); };
 }

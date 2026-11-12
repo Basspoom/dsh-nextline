@@ -2,6 +2,12 @@
 
 All notable changes to NextLine are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- Restore the full ghost suggestion whenever the composer becomes empty; treat a zero-width-only draft as empty, restore after clearing a new draft, and keep Esc dismissals.
+
 ## [0.1.0] - 2026-11-12
 
 First installable release.
