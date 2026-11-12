@@ -53,7 +53,7 @@ dsh plugin --profile desktop remove dsh-nextline
 
 ## 配置
 
-在 **设置 → 插件 → NextLine 下一句** 中调整，或写入 profile 的 `cordis.patch.yml`：
+在 **设置 → 插件 → NextLine** 中调整，或写入 profile 的 `cordis.patch.yml`：
 
 ```yaml
 - id: nextline
