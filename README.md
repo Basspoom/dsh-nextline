@@ -7,7 +7,7 @@
 ![NextLine 建议示意](docs/preview.svg)
 
 
-`v0.1.0` · DSH `0.2.2-rc.2`–`0.3.0` · 桌面 / Web
+`v0.1.1` · DSH `0.2.2-rc.2`–`0.3.0` · 桌面 / Web
 
 ## 功能
 
@@ -23,13 +23,13 @@
 从 GitHub：
 
 ```powershell
-dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#v0.1.0"
+dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#v0.1.1"
 ```
 
 或在 **插件** 页面选择 **添加插件**，粘贴：
 
 ```text
-github:Basspoom/dsh-nextline#v0.1.0
+github:Basspoom/dsh-nextline#v0.1.1
 ```
 
 从本地目录：

@@ -4,6 +4,8 @@ All notable changes to NextLine are documented here. The format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-12
+
 ### Fixed
 
 - Restore the full ghost suggestion whenever the composer becomes empty; treat a zero-width-only draft as empty, restore after clearing a new draft, and keep Esc dismissals.
