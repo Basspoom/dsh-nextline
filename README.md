@@ -1,10 +1,11 @@
-# NextLine 下一句
+# NextLine
 
 [English](README.en.md) | 简体中文
 
 **像你自己输入的下一句。** 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）提供个性化的下一条消息建议。
 
 ![NextLine 建议示意](docs/preview.svg)
+
 
 `v0.1.0` · DSH `0.2.2-rc.2`–`0.3.0` · 桌面 / Web
 
@@ -31,7 +32,7 @@ dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#v0.1.0"
 github:Basspoom/dsh-nextline#v0.1.0
 ```
 
-从本地目录开发：
+从本地目录：
 
 ```powershell
 npm install
@@ -52,7 +53,7 @@ dsh plugin --profile desktop remove dsh-nextline
 
 ## 配置
 
-在 **设置 → 插件 → NextLine 下一句** 中调整，或写入 profile 的 `cordis.patch.yml`：
+在 **设置 → 插件 → NextLine** 中调整，或写入 profile 的 `cordis.patch.yml`：
 
 ```yaml
 - id: nextline
@@ -92,6 +93,3 @@ npm pack --dry-run
 
 `lib/client.js` 由 `npm run build` 生成，请与 `src/client.js` 一起提交。更多检查见 [CONTRIBUTING.md](CONTRIBUTING.md)，发布步骤见 [RELEASING.md](RELEASING.md)，安全问题见 [SECURITY.md](SECURITY.md)。
 
-## 许可证
-
-MIT，见 [LICENSE](LICENSE)。NextLine 不是 DeepSeek 官方插件。
