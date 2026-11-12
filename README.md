@@ -1,4 +1,4 @@
-# NextLine 下一句
+# NextLine
 
 [English](README.en.md) | 简体中文
 
@@ -31,7 +31,7 @@ dsh plugin --profile desktop add "github:Basspoom/dsh-nextline#v0.1.0"
 github:Basspoom/dsh-nextline#v0.1.0
 ```
 
-从本地目录开发：
+从本地目录：
 
 ```powershell
 npm install
@@ -92,6 +92,3 @@ npm pack --dry-run
 
 `lib/client.js` 由 `npm run build` 生成，请与 `src/client.js` 一起提交。更多检查见 [CONTRIBUTING.md](CONTRIBUTING.md)，发布步骤见 [RELEASING.md](RELEASING.md)，安全问题见 [SECURITY.md](SECURITY.md)。
 
-## 许可证
-
-MIT，见 [LICENSE](LICENSE)。NextLine 不是 DeepSeek 官方插件。
