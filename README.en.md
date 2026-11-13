@@ -15,6 +15,8 @@ English | [简体中文](README.md)
 - Hidden while typing, composing with an IME, or when attachments, queued messages, or a running turn exist.
 - Uses DSH theme tokens for the ghost text.
 
+**Latest update** · [v0.1.2](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.2) adds tone presets, a Zu’an Easter egg, and sliders for warmth, enthusiasm, and emoji use.
+
 ## Install
 
 Requires DSH Desktop / Web `0.2.2-rc.2` through `0.3.0` (exclusive). The terminal TUI is not supported.
