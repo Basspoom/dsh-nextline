@@ -8,3 +8,7 @@
         historySessionLimit: 10
         timeoutMs: 15000
         maxSuggestionChars: 240
+        style: efficient
+        warmth: 50
+        enthusiasm: 50
+        emoji: 15

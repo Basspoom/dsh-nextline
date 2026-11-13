@@ -147,7 +147,102 @@ export function attachGhost(shell, session, source, doc = document) {
   return () => { disposed = true; clearInterval(timer); for (const stop of stops) stop(); removeSurface(); };
 }
 
-export const inject = ['slots', 'sessions', 'conversation'];
+const NEXT_LINE_STYLES = [
+  { id: 'default', zh: { title: '默认', desc: '预设风格和语调' }, en: { title: 'Default', desc: 'Preset style and tone' } },
+  { id: 'professional', zh: { title: '专业可靠', desc: '精雕细琢' }, en: { title: 'Professional', desc: 'Polished and dependable' } },
+  { id: 'friendly', zh: { title: '亲和友善', desc: '温和健谈' }, en: { title: 'Friendly', desc: 'Warm and conversational' } },
+  { id: 'direct', zh: { title: '直言不讳', desc: '直率乐观' }, en: { title: 'Direct', desc: 'Candid and optimistic' } },
+  { id: 'imaginative', zh: { title: '天马行空', desc: '趣味幻想' }, en: { title: 'Imaginative', desc: 'Playful and inventive' } },
+  { id: 'efficient', zh: { title: '高效务实', desc: '简洁直白' }, en: { title: 'Efficient', desc: 'Short and to the point' } },
+  { id: 'roast', zh: { title: '吐槽达人', desc: '犀利毒舌' }, en: { title: 'Roast', desc: 'Sharp and sarcastic' } },
+  { id: 'zuan', zh: { title: '祖安模式', desc: '暴躁粗鲁，爆粗口，极不耐烦', egg: true }, en: { title: 'Zu\'an mode', desc: 'Furious, rude and foul-mouthed', egg: true } }
+];
+
+const NEXT_LINE_COPY = {
+  zh: {
+    title: '语言风格与语气',
+    subtitle: '决定 NextLine 建议的措辞和情绪；调整后立即生效。',
+    style: '基础风格和语气',
+    styleHint: '选择建议的整体表达方式',
+    warmth: '亲切程度',
+    warmthHint: '冷淡 ↔ 温暖',
+    enthusiasm: '热情程度',
+    enthusiasmHint: '平静 ↔ 热情',
+    emoji: '表情符号',
+    emojiHint: '克制 ↔ 活泼',
+    loading: '正在读取配置…',
+    unavailable: '配置暂不可用',
+    saveError: '保存失败，请重试',
+    egg: '彩蛋'
+  },
+  en: {
+    title: 'Language style and tone',
+    subtitle: 'Shapes the wording and mood of NextLine suggestions; changes apply immediately.',
+    style: 'Base style and tone',
+    styleHint: 'Choose how the suggestion should sound',
+    warmth: 'Warmth',
+    warmthHint: 'Cold ↔ warm',
+    enthusiasm: 'Enthusiasm',
+    enthusiasmHint: 'Calm ↔ eager',
+    emoji: 'Emoji',
+    emojiHint: 'Restrained ↔ playful',
+    loading: 'Reading configuration…',
+    unavailable: 'Configuration is unavailable',
+    saveError: 'Could not save; try again',
+    egg: 'Easter egg'
+  }
+};
+
+const NEXT_LINE_DEFAULTS = { style: 'efficient', warmth: 50, enthusiasm: 50, emoji: 15 };
+
+const NEXT_LINE_CSS = `
+.nx-card{display:grid;gap:16px;padding:18px 18px 20px;border:1px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);box-sizing:border-box}
+.nx-head{display:grid;gap:3px}
+.nx-title{margin:0;font-size:15px;font-weight:600;line-height:22px;color:var(--dsw-alias-label-primary)}
+.nx-subtitle{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
+.nx-row{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.nx-copy{display:grid;gap:2px;min-width:0}
+.nx-label{font-size:13px;line-height:20px;color:var(--dsw-alias-label-primary)}
+.nx-hint{font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}
+.nx-select{position:relative;flex:0 0 248px;min-width:0}
+.nx-trigger{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border:1px solid var(--dsw-alias-border-l2);border-radius:10px;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:20px;text-align:left;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease}
+.nx-trigger:hover{border-color:var(--dsw-alias-brand-primary)}
+.nx-trigger:focus-visible{outline:none;border-color:var(--dsw-alias-brand-primary);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+.nx-trigger:disabled{opacity:.55;cursor:not-allowed}
+.nx-chevron{flex:none;color:var(--dsw-alias-label-secondary);transition:transform .15s ease}
+.nx-trigger[aria-expanded="true"] .nx-chevron{transform:rotate(180deg)}
+.nx-menu{position:absolute;z-index:30;top:calc(100% + 6px);right:0;width:304px;max-height:340px;overflow:auto;padding:6px;border:1px solid var(--dsw-alias-border-l2);border-radius:14px;background:var(--dsw-alias-bg-overlay);box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.nx-menu-item{display:flex;width:100%;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 10px;border:0;border-radius:10px;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;text-align:left;cursor:pointer;transition:background .12s ease,color .12s ease}
+.nx-menu-item:hover,.nx-menu-item:focus-visible{background:var(--dsw-alias-bg-layer-2);outline:none}
+.nx-menu-item[aria-selected="true"]{background:var(--dsw-alias-bg-layer-2)}
+.nx-menu-copy{display:grid;gap:1px;min-width:0}
+.nx-menu-title{display:flex;align-items:center;gap:6px;font-size:13px;line-height:19px}
+.nx-menu-desc{font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}
+.nx-menu-item.nx-egg .nx-menu-title{color:var(--dsw-alias-state-error-primary)}
+.nx-egg-badge{padding:0 6px;border:1px solid currentColor;border-radius:999px;font-size:10px;line-height:15px;font-weight:500}
+.nx-check{flex:none;margin-top:3px;color:var(--dsw-alias-brand-primary)}
+.nx-divider{height:1px;margin:6px 8px;background:var(--dsw-alias-border-l1)}
+.nx-sliders{display:grid;gap:15px}
+.nx-slider{display:grid;gap:2px}
+.nx-slider-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.nx-value{font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}
+.nx-range{-webkit-appearance:none;appearance:none;width:100%;height:28px;margin:2px 0 0;background:transparent;cursor:pointer}
+.nx-range:disabled{opacity:.55;cursor:not-allowed}
+.nx-range::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:linear-gradient(to right,var(--dsw-alias-brand-primary) 0 var(--nx-pct),var(--dsw-alias-bg-layer-2) var(--nx-pct) 100%)}
+.nx-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin-top:-5px;border:2px solid var(--dsw-alias-brand-primary);border-radius:50%;background:var(--dsw-alias-bg-base);box-shadow:0 1px 4px rgba(0,0,0,.22);transition:transform .15s ease,box-shadow .15s ease}
+.nx-range:active::-webkit-slider-thumb{transform:scale(1.16);box-shadow:0 2px 9px rgba(0,0,0,.28)}
+.nx-range:focus-visible{outline:none}
+.nx-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(59,130,246,.2)}
+.nx-range::-moz-range-track{height:8px;border-radius:999px;background:linear-gradient(to right,var(--dsw-alias-brand-primary) 0 var(--nx-pct),var(--dsw-alias-bg-layer-2) var(--nx-pct) 100%)}
+.nx-range::-moz-range-thumb{width:16px;height:16px;border:2px solid var(--dsw-alias-brand-primary);border-radius:50%;background:var(--dsw-alias-bg-base);box-shadow:0 1px 4px rgba(0,0,0,.22);transition:transform .15s ease,box-shadow .15s ease}
+.nx-range:active::-moz-range-thumb{transform:scale(1.16)}
+.nx-status{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
+.nx-error{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-state-error-primary)}
+@media (max-width:640px){.nx-row{align-items:stretch;flex-direction:column;gap:10px}.nx-select{flex:1 1 auto;width:100%}.nx-menu{left:0;right:auto;width:100%}}
+@media (prefers-reduced-motion:reduce){.nx-trigger,.nx-chevron,.nx-range::-webkit-slider-thumb,.nx-range::-moz-range-thumb{transition:none}}
+`;
+
+export const inject = ['slots', 'sessions', 'conversation', 'configForms', 'locale'];
 export function apply(ctx) {
   const React = require('react');
   function NextLine({ shell, session, source }) {
@@ -165,4 +260,119 @@ export function apply(ctx) {
       } catch { console.warn('[NextLine] Unsupported composer API; suggestion UI disabled.'); return {}; }
     }
   }, NextLine));
+
+  function useLocale() {
+    return React.useSyncExternalStore(
+      listener => ctx.locale.subscribe(listener),
+      () => ctx.locale.getSnapshot());
+  }
+  function useSettingsForm() {
+    const forms = React.useMemo(() => [ctx.configForms.get('nextline'), ctx.configForms.get('include:nextline')], []);
+    const primary = React.useSyncExternalStore(listener => forms[0].subscribe(listener), () => forms[0].getSnapshot());
+    const fallback = React.useSyncExternalStore(listener => forms[1].subscribe(listener), () => forms[1].getSnapshot());
+    if (primary.status === 'ready') return { form: forms[0], snapshot: primary };
+    if (fallback.status === 'ready') return { form: forms[1], snapshot: fallback };
+    return { form: forms[0], snapshot: primary };
+  }
+  function NextLineSettings({ view }) {
+    const h = React.createElement;
+    const locale = useLocale();
+    const { form, snapshot } = useSettingsForm();
+    const [draft, setDraft] = React.useState({});
+    const [open, setOpen] = React.useState(false);
+    const [error, setError] = React.useState('');
+    const root = React.useRef(null);
+    React.useEffect(() => {
+      if (!open) return;
+      const close = event => { if (!root.current?.contains(event.target)) setOpen(false); };
+      document.addEventListener('pointerdown', close);
+      return () => document.removeEventListener('pointerdown', close);
+    }, [open]);
+    if (view !== 'page') return null;
+    const lang = String(locale?.active ?? '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+    const copy = NEXT_LINE_COPY[lang];
+    const values = snapshot.value && typeof snapshot.value === 'object' ? snapshot.value : {};
+    const get = key => draft[key] ?? values[key] ?? NEXT_LINE_DEFAULTS[key];
+    const writable = snapshot.status === 'ready' && snapshot.writable !== false;
+    const commit = (key, value) => {
+      setDraft(current => ({ ...current, [key]: value }));
+      if (!writable) return;
+      setError('');
+      form.set(key, value).then(ok => { if (!ok) setError(copy.saveError); }).catch(() => setError(copy.saveError));
+    };
+    const preview = (key, value) => setDraft(current => ({ ...current, [key]: value }));
+    const currentStyle = NEXT_LINE_STYLES.find(item => item.id === get('style')) ?? NEXT_LINE_STYLES[5];
+    const slider = (field, label, hint) => {
+      const value = Math.max(0, Math.min(100, Number(get(field)) || 0));
+      return h('div', { className: 'nx-slider', key: field },
+        h('div', { className: 'nx-slider-head' },
+          h('span', { className: 'nx-label' }, label),
+          h('span', { className: 'nx-value' }, String(Math.round(value)))),
+        h('span', { className: 'nx-hint' }, hint),
+        h('input', {
+          className: 'nx-range', type: 'range', min: 0, max: 100, step: 1, value,
+          style: { '--nx-pct': `${value}%` },
+          onChange: event => preview(field, Number(event.target.value)),
+          onPointerUp: () => commit(field, Number(get(field))),
+          onKeyUp: event => {
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key))
+              commit(field, Number(get(field)));
+          },
+          onBlur: () => commit(field, Number(get(field))),
+          disabled: !writable,
+          'aria-label': label
+        })
+      );
+    };
+    const menuItems = NEXT_LINE_STYLES.map(item => {
+      const itemCopy = item[lang];
+      const selected = item.id === currentStyle.id;
+      return h(React.Fragment, { key: item.id },
+        itemCopy.egg ? h('div', { className: 'nx-divider' }) : null,
+        h('button', {
+          type: 'button', role: 'option', 'aria-selected': selected,
+          className: `nx-menu-item${itemCopy.egg ? ' nx-egg' : ''}`,
+          onClick: () => { commit('style', item.id); setOpen(false); }
+        },
+          h('span', { className: 'nx-menu-copy' },
+            h('span', { className: 'nx-menu-title' }, itemCopy.title,
+              itemCopy.egg ? h('span', { className: 'nx-egg-badge' }, copy.egg) : null),
+            h('span', { className: 'nx-menu-desc' }, itemCopy.desc)),
+          selected ? h('svg', { className: 'nx-check', width: 16, height: 16, viewBox: '0 0 16 16', 'aria-hidden': true },
+            h('path', { d: 'M3.5 8.5l3 3 6-6', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' })) : null)
+      );
+    });
+    const controls = snapshot.status === 'ready'
+      ? h(React.Fragment, null,
+          h('div', { className: 'nx-row' },
+            h('div', { className: 'nx-copy' },
+              h('span', { className: 'nx-label' }, copy.style),
+              h('span', { className: 'nx-hint' }, copy.styleHint)),
+            h('div', { className: 'nx-select' },
+              h('button', {
+                type: 'button', className: 'nx-trigger', 'aria-haspopup': 'listbox',
+                'aria-expanded': open, disabled: !writable, onClick: () => setOpen(value => !value)
+              },
+                h('span', null, currentStyle[lang].title),
+                h('svg', { className: 'nx-chevron', width: 16, height: 16, viewBox: '0 0 16 16', 'aria-hidden': true },
+                  h('path', { d: 'M4 6l4 4 4-4', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }))),
+              open ? h('div', { className: 'nx-menu', role: 'listbox', 'aria-label': copy.style }, menuItems) : null)),
+          h('div', { className: 'nx-divider' }),
+          h('div', { className: 'nx-sliders' },
+            slider('warmth', copy.warmth, copy.warmthHint),
+            slider('enthusiasm', copy.enthusiasm, copy.enthusiasmHint),
+            slider('emoji', copy.emoji, copy.emojiHint)),
+          error ? h('p', { className: 'nx-error', role: 'alert' }, error) : null)
+      : h('p', { className: 'nx-status' }, snapshot.status === 'loading' ? copy.loading : copy.unavailable);
+    return h(React.Fragment, null,
+      h('style', null, NEXT_LINE_CSS),
+      h('section', { className: 'nx-card', 'data-nextline-settings': '', ref: root },
+        h('div', { className: 'nx-head' },
+          h('h4', { className: 'nx-title' }, copy.title),
+          h('p', { className: 'nx-subtitle' }, copy.subtitle)),
+        controls));
+  }
+  ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
+    name: 'plugins.bundle.config', key: 'dsh-nextline'
+  }, NextLineSettings));
 }

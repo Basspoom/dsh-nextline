@@ -1,4 +1,4 @@
-import { SYSTEM, RECORD, messagesOf, makeInput, cleanSuggestion, reduceSuggestion } from './core.js';
+import { RECORD, messagesOf, makeInput, cleanSuggestion, reduceSuggestion, systemFor } from './core.js';
 
 // Kept separate from DSH imports so lifecycle/race checks run without installing DSH.
 export async function start(ctx, config, api) {
@@ -93,7 +93,7 @@ export async function start(ctx, config, api) {
         { reasoningEffort: info.reasoning.efforts[0].id }) }));
     signal.throwIfAborted();
     const assembler = new api.BlockAssembler();
-    for await (const chunk of call.stream({ ...call.config, system: SYSTEM,
+    for await (const chunk of call.stream({ ...call.config, system: systemFor(config),
       messages: [api.createUserMessage({ content: [{ type: 'text', text: input }], source: { kind: 'dsh-nextline' } })],
       sessionId: session.id, purpose: 'nextline', signal })) {
       signal.throwIfAborted();

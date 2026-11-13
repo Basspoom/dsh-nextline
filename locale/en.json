@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "NextLine",
-    "description": "Shows a pale suggestion for your next message in the empty composer after a completed reply. Press Tab or → to accept it as an editable draft; press Esc to dismiss. Uses the current session model and a bounded lexical sample of your recent chats. One extra request per completed turn, up to 192 output tokens; no suggestion appears while you type or when there is no useful next step.",
+    "description": "Shows a pale suggestion for your next message in the empty composer after a completed reply. Press Tab or → to accept it as an editable draft; press Esc to dismiss. Choose one of seven tone styles or the Zu'an Easter egg on the plugin page, and tune warmth, enthusiasm, and emoji with sliders. Uses the current session model and a bounded lexical sample of your recent chats. One extra request per completed turn, up to 192 output tokens; no suggestion appears while you type or when there is no useful next step.",
     "detail": "docs/DETAIL.md"
   }
 }

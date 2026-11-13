@@ -15,11 +15,20 @@ export const Config = z.object({
   historySessionLimit: z.natural().min(1).max(100).default(10),
   timeoutMs: z.natural().min(1000).max(60000).default(15000),
   maxSuggestionChars: z.natural().min(20).max(240).default(240),
+  style: z.string().volatile(),
+  warmth: z.number().step(1).min(0).max(100).volatile(),
+  enthusiasm: z.number().step(1).min(0).max(100).volatile(),
+  emoji: z.number().step(1).min(0).max(100).volatile(),
   provider: z.string().default(''),
   model: z.string().default('')
 });
 const schema = wire.object({ text: wire.string().min(1).max(240),
   turnSeq: wire.number().int().nonnegative(), createdAt: wire.number().finite() }).nullable();
+const CONFIG_DEFAULTS = {
+  enabled: true, historyEnabled: true, historyDays: 30, historySessionLimit: 10,
+  timeoutMs: 15000, maxSuggestionChars: 240, style: 'efficient',
+  warmth: 50, enthusiasm: 50, emoji: 15, provider: '', model: ''
+};
 const required = { llm: ['BlockAssembler', 'createUserMessage'], session: ['appendPluginRecord'] };
 
 // A profile-installed bundle may carry its own copy of the DSH libraries next to
@@ -60,8 +69,11 @@ async function hostLibraries() {
 }
 
 export async function apply(ctx, config = {}) {
-  const resolved = Config(config);
-  if (Boolean(resolved.provider) !== Boolean(resolved.model)) throw new Error('NextLine: provider and model must be configured together.');
+  // Keep volatile settings handles intact so a slider/style change applies on
+  // the next suggestion without remounting; systemFor() reads them at call time.
+  const resolved = { ...CONFIG_DEFAULTS, ...config };
+  const read = value => value && typeof value.get === 'function' ? value.get() : value;
+  if (Boolean(read(resolved.provider)) !== Boolean(read(resolved.model))) throw new Error('NextLine: provider and model must be configured together.');
   const libraries = await hostLibraries();
   return start(ctx, resolved, { schema, ...libraries });
 }

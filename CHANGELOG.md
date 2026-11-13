@@ -2,7 +2,14 @@
 
 All notable changes to NextLine are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.2] - 2026-11-13
+
+### Added
+
+- A style picker on the plugin page with seven presets: Default, Professional, Friendly, Direct, Imaginative, Efficient, and Roast.
+- A Zu'an Easter-egg mode for an extremely angry, impatient, foul-mouthed user, with safety boundaries against slurs, threats, and real-person targeting.
+- Rounded, smoothly animated sliders for warmth, enthusiasm, and emoji use.
+- Style and dial values now shape the suggestion prompt.
 
 ## [0.1.1] - 2026-11-12
 
