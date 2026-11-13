@@ -7,7 +7,7 @@
 ![NextLine 建议示意](docs/preview.svg)
 
 
-`v0.1.2` · DSH `0.2.2-rc.2`–`0.3.0` · 桌面 / Web
+`v0.1.3` · DSH `0.2.2-rc.2`–`0.3.0` · 桌面 / Web
 
 ## 功能
 
@@ -16,7 +16,12 @@
 - 正在输入、输入法组合、有附件、有排队消息或会话生成中不显示。
 - 颜色跟随 DSH 主题。
 
-**最近更新** · [v0.1.2](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.2) 新增语气预设和「祖安」彩蛋，可调节温暖度、热情度和表情符号用量。
+**最近更新**
+
+- [v0.1.3](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.3) · 修复插件设置页无法打开的问题。
+- [v0.1.2](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.2) · 新增语气预设和「祖安」彩蛋，可调节温暖度、热情度和表情符号用量。
+- [v0.1.1](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.1) · 修复清空输入框后建议没有恢复的问题。
+- [v0.1.0](https://github.com/Basspoom/dsh-nextline/tree/v0.1.0) · 首个可安装版本，支持个性化输入建议和草稿采纳。
 
 ## 安装
 
@@ -25,14 +30,16 @@
 从 GitHub：
 
 ```powershell
-dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.2.tar.gz"
+dsh plugin --profile desktop add "github:Basspoom/dsh-nextline"
 ```
 
 或在 **插件** 页面选择 **添加插件**，粘贴：
 
 ```text
-https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.2.tar.gz
+github:Basspoom/dsh-nextline
 ```
+
+Git 安装会跟踪仓库默认分支，插件市场可检查更新。如果旧版是通过压缩包安装的，请先备份插件设置，再卸载旧版并用上述 Git 地址重新安装。
 
 从本地目录：
 

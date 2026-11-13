@@ -6,7 +6,7 @@ English | [简体中文](README.md)
 
 ![NextLine suggestion preview](docs/preview.svg)
 
-`v0.1.2` · DSH `0.2.2-rc.2`–`0.3.0` · Desktop / Web
+`v0.1.3` · DSH `0.2.2-rc.2`–`0.3.0` · Desktop / Web
 
 ## Features
 
@@ -15,7 +15,12 @@ English | [简体中文](README.md)
 - Hidden while typing, composing with an IME, or when attachments, queued messages, or a running turn exist.
 - Uses DSH theme tokens for the ghost text.
 
-**Latest update** · [v0.1.2](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.2) adds tone presets, a Zu’an Easter egg, and sliders for warmth, enthusiasm, and emoji use.
+**Recent updates**
+
+- [v0.1.3](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.3) · Fixes an issue that prevented the plugin settings page from opening.
+- [v0.1.2](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.2) · Adds tone presets, a Zu’an Easter egg, and sliders for warmth, enthusiasm, and emoji use.
+- [v0.1.1](https://github.com/Basspoom/dsh-nextline/releases/tag/v0.1.1) · Restores the suggestion when the composer becomes empty again.
+- [v0.1.0](https://github.com/Basspoom/dsh-nextline/tree/v0.1.0) · First installable release with personalized suggestions and editable draft acceptance.
 
 ## Install
 
@@ -24,14 +29,16 @@ Requires DSH Desktop / Web `0.2.2-rc.2` through `0.3.0` (exclusive). The termina
 From GitHub:
 
 ```powershell
-dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.2.tar.gz"
+dsh plugin --profile desktop add "github:Basspoom/dsh-nextline"
 ```
 
 Or open **Plugins → Add plugin** and enter:
 
 ```text
-https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.2.tar.gz
+github:Basspoom/dsh-nextline
 ```
+
+A Git install tracks the repository’s default branch so the plugin market can check for updates. If you previously installed from an archive, back up your plugin settings, uninstall the archive version, and reinstall using the Git address above.
 
 From a local checkout:
 

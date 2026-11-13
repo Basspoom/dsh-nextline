@@ -25,10 +25,11 @@ Confirm:
 
 1. Bump `version` in `package.json`.
 2. Move the unreleased changelog entries under the new version in `CHANGELOG.md`.
-3. Commit both together:
+3. Update the version banner and recent updates in both READMEs. Keep at most five patch releases, newest first.
+4. Commit the release files together:
 
 ```powershell
-git add package.json CHANGELOG.md
+git add package.json CHANGELOG.md README.md README.en.md
 git commit -m "Release vX.Y.Z"
 ```
 
@@ -59,7 +60,7 @@ git push -u origin main --tags
 Use a profile you can reset (or remove the plugin afterwards):
 
 ```powershell
-dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/vX.Y.Z.tar.gz"
+dsh plugin --profile desktop add "github:Basspoom/dsh-nextline"
 ```
 
 Then in DSH:
@@ -69,11 +70,11 @@ Then in DSH:
 3. Check Tab, →, editing before send, Esc, direct typing, session switching, Chinese IME, and disabling the plugin.
 4. Uninstall and confirm the ghost layer and listeners are gone.
 
-The tagged archive uses the committed `lib/client.js`. With pnpm 11, Git shorthand requires an `allowBuilds` entry to run `prepare`.
+The Git source follows the default branch. When the plugin market prompts for build approval, review the source and use “Allow build scripts and retry”.
 
 ## 6. GitHub release
 
-Create a release from the tag, paste the matching `CHANGELOG.md` section, and link the install command. Installing from a tag is preferred over `main` so users get a tested build.
+Create a release from the tag, paste the matching `CHANGELOG.md` section, and use the Git installation command above so the market can check future updates.
 
 ## 7. npm (optional)
 
