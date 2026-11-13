@@ -6,7 +6,7 @@ English | [简体中文](README.md)
 
 ![NextLine suggestion preview](docs/preview.svg)
 
-`v0.1.1` · DSH `0.2.2-rc.2`–`0.3.0` · Desktop / Web
+`v0.1.2` · DSH `0.2.2-rc.2`–`0.3.0` · Desktop / Web
 
 ## Features
 
@@ -22,13 +22,13 @@ Requires DSH Desktop / Web `0.2.2-rc.2` through `0.3.0` (exclusive). The termina
 From GitHub:
 
 ```powershell
-dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.1.tar.gz"
+dsh plugin --profile desktop add "https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.2.tar.gz"
 ```
 
 Or open **Plugins → Add plugin** and enter:
 
 ```text
-https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.1.tar.gz
+https://github.com/Basspoom/dsh-nextline/archive/refs/tags/v0.1.2.tar.gz
 ```
 
 From a local checkout:
